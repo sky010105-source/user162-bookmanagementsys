@@ -15,7 +15,7 @@ phases:
       - echo "Installing NPM dependencies..."
       - npm install
       - echo "Setting environment variables..."
-      - export VITE_API_BASE_URL="http://<백엔드_ELB_주소>" # 실제 백엔드 서비스의 ELB 주소로 교체해야 합니다.
+      - export VITE_API_BASE_URL="http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com" # 이 부분을 실제 백엔드 서비스의 ELB 주소로 반드시 교체해야 합니다.
       - echo "Building the React app..."
       - npm run build
       
