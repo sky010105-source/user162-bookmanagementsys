@@ -12,4 +12,4 @@ export const CATEGORIES = [
 
 export const DEFAULT_CATEGORY = '소설';
 
-export const API_BASE_URL = "http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com/"; 
+export const API_BASE_URL = "http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com"; 
