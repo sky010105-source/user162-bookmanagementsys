@@ -1,20 +1,32 @@
 version: 0.2
+
 phases:
-  install:
-    runtime-versions:
-      nodejs: 20
-    commands:
-      - npm install -g @angular/cli@17
   pre_build:
     commands:
-      - npm install
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin <본인의_AWS_계정ID>.dkr.ecr.us-west-1.amazonaws.com
+      - REPOSITORY_URI=<새로_만든_프론트엔드_ECR_URI_주소>
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
-      - ng build -c production
-      - echo "Build completed."
-    finally:
-      - echo This is the finally block execution!
-artifacts:
-  base-directory: dist/my-angular-project
-  files:
-    - '**/*'
+      - echo Frontend Build started on `date`
+      - echo Installing NPM dependencies...
+      - npm install
+      - echo Building the React app...
+      - npm run build
+      
+      - echo Creating Dockerfile on the fly...
+      - echo "FROM nginx:alpine" > Dockerfile
+      - echo "COPY dist /usr/share/nginx/html" >> Dockerfile
+      - echo "EXPOSE 80" >> Dockerfile
+      - echo "CMD [\"nginx\", \"-g\", \"daemon off;\"]" >> Dockerfile
+      
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
