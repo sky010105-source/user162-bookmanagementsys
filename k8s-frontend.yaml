@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
       - name: bookapp-frontend
-        # 💡 [중요] 방금 만든 프론트엔드 ECR URI로 변경하세요!
-        image: <본인의_AWS_계정ID>[.dkr.ecr.us-west-1.amazonaws.com/user162-frontend:latest](https://.dkr.ecr.us-west-1.amazonaws.com/user162-frontend:latest)
+        image: 879772956301.dkr.ecr.us-west-1.amazonaws.com/user162-frontend:latest
         ports:
         - containerPort: 80 # Nginx 기본 포트
 ---
