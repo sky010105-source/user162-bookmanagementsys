@@ -16,18 +16,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping("/**") // 모든 백엔드 주소에 대해서
-                .allowedOrigins("http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com", "http://localhost:3000") // 리액트 주소의 접근을 허락한다
-                
-                .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS") // 이 행동들을 허락한다
-                .allowedHeaders("*"); // Authorization 헤더 포함 모두 허용
+        registry.addMapping("/**") // 모든 API 경로에 대해
+                .allowedOrigins(
+                        "http://localhost:5173", // 로컬 환경의 Vite 프론트엔드 주소 허용
+                        "http://localhost:3000", // 로컬 환경의 리액트 주소 (필요시 유지)
+                        "http://a62c75d8bcd9a4e7eba7c2ad871cfe7c-240072404.us-west-1.elb.amazonaws.com" // 배포된 프론트엔드 주소
+                )
+                .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("*");
     }
 
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/books/**") // 도서 관련 모든 경로
-                .excludePathPatterns("/auth/**", "/h2-console/**"); // 인증/H2 콘솔은 면제
-        // GET 요청은 인터셉터 안에서 별도로 통과시킴
+                .addPathPatterns("/books/**")
+                .excludePathPatterns("/auth/**", "/h2-console/**");
     }
 }
