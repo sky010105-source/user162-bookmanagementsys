@@ -1,4 +1,6 @@
-const AUTH_URL = 'http://localhost:8080/auth';
+import { API_BASE_URL } from '../constants'; // 경로 주의
+
+const AUTH_URL = API_BASE_URL + '/auth';
 const TOKEN_KEY = 'auth_token';
 const USERNAME_KEY = 'auth_username';
 
