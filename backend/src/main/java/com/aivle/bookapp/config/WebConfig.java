@@ -16,11 +16,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping("/**") // 모든 API 경로에 대해
+        registry.addMapping("/**")
                 .allowedOrigins(
-                        "http://localhost:5173", // 로컬 환경의 Vite 프론트엔드 주소 허용
-                        "http://localhost:3000", // 로컬 환경의 리액트 주소 (필요시 유지)
-                        "http://a62c75d8bcd9a4e7eba7c2ad871cfe7c-240072404.us-west-1.elb.amazonaws.com" // 배포된 프론트엔드 주소
+                        "http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com", 
+                        "http://localhost:3000",
+                        "http://localhost:5173" // 👉 [추가] 현재 Vite 로컬 주소 허용
                 )
                 .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
