@@ -2,25 +2,40 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      nodejs: 20
     commands:
-      - echo Installing frontend dependencies
-      - cd frontend
-      - npm install
+      - echo Installing kubectl...
+      - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+      - chmod +x ./kubectl
+      - mv ./kubectl /usr/local/bin/
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+      - FRONTEND_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$FRONTEND_REPO_NAME
+      - BACKEND_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$BACKEND_REPO_NAME
   build:
     commands:
-      - echo Building frontend
-      - cd frontend && npm run build
+      - echo Build started on `date`
+      - echo Building Frontend Docker image...
+      - cd frontend && docker build -t $FRONTEND_URI:latest . && cd ..
+      - docker tag $FRONTEND_URI:latest $FRONTEND_URI:$IMAGE_TAG
+      
+      - echo Building Backend Docker image...
+      - cd backend && docker build -t $BACKEND_URI:latest . && cd ..
+      - docker tag $BACKEND_URI:latest $BACKEND_URI:$IMAGE_TAG
   post_build:
     commands:
-      - echo Deploying Kubernetes manifests from k8s folder...
-      # 본인의 리전과 EKS 클러스터 이름으로 변경해주세요.
-      - aws eks update-kubeconfig --region us-west-1 --name user162-cluster 
-      - kubectl apply -f k8s/backend.yaml
-      - kubectl apply -f k8s/frontend.yaml
-
-artifacts:
-  base-directory: frontend/dist
-  files:
-    - '**/*'
+      - echo Build completed on `date`
+      - docker push $FRONTEND_URI:latest
+      - docker push $FRONTEND_URI:$IMAGE_TAG
+      - docker push $BACKEND_URI:latest
+      - docker push $BACKEND_URI:$IMAGE_TAG
+      
+      - cd $CODEBUILD_SRC_DIR
+      
+      - echo Setting AWS EKS Context...
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+      - echo Deploying to EKS Cluster...
+      - kubectl apply -f k8s/

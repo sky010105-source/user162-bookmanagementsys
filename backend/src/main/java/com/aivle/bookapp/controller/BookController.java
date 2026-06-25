@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/books")
 @RequiredArgsConstructor
 public class BookController {
 

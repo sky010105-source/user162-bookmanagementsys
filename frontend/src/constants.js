@@ -11,5 +11,3 @@ export const CATEGORIES = [
 ];
 
 export const DEFAULT_CATEGORY = '소설';
-
-export const API_BASE_URL = "/api"; 

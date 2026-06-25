@@ -10,7 +10,6 @@ phases:
       - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
-      - cd frontend
       - echo "Frontend Build started on `date`"
       - echo "Installing NPM dependencies..."
       - npm install
