@@ -15,6 +15,8 @@ phases:
   post_build:
     commands:
       - echo Deploying Kubernetes manifests from k8s folder...
+      # 본인의 리전과 EKS 클러스터 이름으로 변경해주세요.
+      - aws eks update-kubeconfig --region us-west-1 --name user162-cluster 
       - kubectl apply -f k8s/backend.yaml
       - kubectl apply -f k8s/frontend.yaml
 
