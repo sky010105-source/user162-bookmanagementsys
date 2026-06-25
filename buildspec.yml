@@ -1,24 +1,33 @@
 version: 0.2
 
 phases:
-  pre_build:
-    commands:
-      # frontend 폴더로 이동 후 패키지 설치
-      - cd frontend
-      - echo "Installing NPM dependencies..."
-      - npm install
+  install:
+    runtime-versions:
+      java: corretto17
+      nodejs: 20
   build:
     commands:
-      - echo "Setting environment variables..."
-      - export VITE_API_BASE_URL="http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com"
-      - echo "Building the React app..."
+      # 1. 백엔드 빌드
+      - echo "Building Backend..."
+      - cd backend
+      - chmod +x gradlew
+      - ./gradlew clean build -x test
+      - cd ..
+
+      # 2. 프론트엔드 빌드
+      - echo "Building Frontend..."
+      - cd frontend
+      - npm install
+      # ⚠️ 아래 주소에 EC2의 퍼블릭 IP 또는 도메인을 적어주세요. (포트는 백엔드 포트인 8080)
+      - export VITE_API_BASE_URL="http://54.219.60.86:8080"
       - npm run build
-  post_build:
-    commands:
-      - echo "Build completed."
-      
+      - cd ..
+
 artifacts:
-  # 빌드 결과물 경로도 frontend 하위의 dist 폴더로 변경
-  base-directory: frontend/dist
+  # CodeDeploy가 가져갈 파일들만 묶어서 S3로 전달합니다.
   files:
-    - '**/*'
+    - backend/build/libs/*.jar
+    - frontend/dist/**/*
+    - appspec.yml
+    - scripts/**/*
+  discard-paths: no
