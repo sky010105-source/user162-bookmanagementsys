@@ -1,20 +1,24 @@
 version: 0.2
+
 phases:
-  install:
-    runtime-versions:
-      nodejs: 20
-    commands:
-      - npm install -g @angular/cli@17
   pre_build:
     commands:
+      # frontend 폴더로 이동 후 패키지 설치
+      - cd frontend
+      - echo "Installing NPM dependencies..."
       - npm install
   build:
     commands:
-      - ng build -c production
+      - echo "Setting environment variables..."
+      - export VITE_API_BASE_URL="http://a4ac720e9ab444c55b13081326853612-1170809007.us-west-1.elb.amazonaws.com"
+      - echo "Building the React app..."
+      - npm run build
+  post_build:
+    commands:
       - echo "Build completed."
-    finally:
-      - echo This is the finally block execution!
+      
 artifacts:
-  base-directory: dist/my-angular-project
+  # 빌드 결과물 경로도 frontend 하위의 dist 폴더로 변경
+  base-directory: frontend/dist
   files:
     - '**/*'
